@@ -137,6 +137,13 @@ func main() {
 		err = winsvc.ControlService(name, svc.Pause, svc.Paused, timeout)
 	case "continue":
 		err = winsvc.ControlService(name, svc.Continue, svc.Running, timeout)
+	case "status":
+		var status string
+		status, err = winsvc.QueryService(name)
+		if err == nil {
+			fmt.Printf("%s %s\r\n", name, status)
+			return
+		}
 	default:
 		usage(fmt.Sprintf("invalid command %s", cmd))
 	}

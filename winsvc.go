@@ -18,6 +18,16 @@ import (
 	"golang.org/x/sys/windows/svc/mgr"
 )
 
+var stateLabel = map[svc.State]string{
+	svc.Stopped:         "Stopped",
+	svc.StartPending:    "StartPending",
+	svc.StopPending:     "StopPending",
+	svc.Running:         "Running",
+	svc.ContinuePending: "ContinuePending",
+	svc.PausePending:    "PausePending",
+	svc.Paused:          "Paused",
+}
+
 // SvcOpt can apply SetRecoveryActions, SetRecoveryCommand or SetRebootMessage
 // to service.
 type SvcOpt func(*mgr.Service) error
@@ -107,7 +117,7 @@ func StartService(name string, cmdArgs []string) error {
 	return nil
 }
 
-// ControlService  sends state change request c to the service name.
+// ControlService sends state change request c to the service name.
 func ControlService(name string, c svc.Cmd, to svc.State, timeout time.Duration) error {
 	m, err := mgr.Connect()
 	if err != nil {
@@ -139,6 +149,30 @@ func ControlService(name string, c svc.Cmd, to svc.State, timeout time.Duration)
 		}
 	}
 	return nil
+}
+
+// QueryService gets the status of the service name
+func QueryService(name string) (string, error) {
+	m, err := mgr.Connect()
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if err := m.Disconnect(); err != nil {
+			log.Printf("failed to disconnect system service manager: %s", err)
+		}
+	}()
+	s, err := m.OpenService(name)
+	if err != nil {
+		return "", fmt.Errorf("could not access service: %v", err)
+	}
+	defer s.Close()
+	status, err := s.Query()
+	if err != nil {
+		return "", err
+	}
+
+	return stateLabel[status.State], nil
 }
 
 // SelfExePath creates filepath string of self execution binary
