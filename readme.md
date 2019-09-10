@@ -1,6 +1,6 @@
 # winsvc
 
-Modularlization of [the official example of widows service](https://github.com/golang/sys/tree/master/windows/svc/example).
+The modularlization of [the official example of windows service](https://github.com/golang/sys/tree/master/windows/svc/example).
 
 ## Example
 
