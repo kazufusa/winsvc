@@ -8,13 +8,14 @@ import (
 	"golang.org/x/sys/windows/svc/mgr"
 )
 
+const name = "test-service"
+
 func ExampleInstallService() {
-	winsvc.MaximizeTimeout()
-	exepath, err := winsvc.SelfExePath()
+	exepath, err := SelfExePath()
 	if err != nil {
-		break
+		return
 	}
-	err = winsvc.InstallService(
+	err = InstallService(
 		exepath,
 		name,
 		mgr.Config{
@@ -44,9 +45,19 @@ func ExampleInstallService() {
 }
 
 func ExampleOpenPort() {
-	err = winsvc.OpenPort(name, winsvc.FW_RULE_DIR_IN, exepath, winsvc.FW_RULE_PROTOCOL_TCP, 80)
+	exepath, err := SelfExePath()
+	if err != nil {
+		return
+	}
+	err = OpenPort(name, FW_RULE_DIR_IN, exepath, FW_RULE_PROTOCOL_TCP, 80)
+	if err != nil {
+		return
+	}
 }
 
 func ExampleClosePort() {
-	err = winsvc.ClosePort(name)
+	err := ClosePort(name)
+	if err != nil {
+		return
+	}
 }
